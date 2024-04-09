@@ -6,6 +6,7 @@ import { removeTrailingSlash } from './utils/util';
 import { useEffect, useState } from 'react';
 import API_URL from './services/api';
 import { Note } from './components/Note';
+import axios from 'axios';
 
 function App() {
   const { data, isLoading } = useFetch<Array<Task>>(
@@ -31,9 +32,37 @@ function App() {
     return <div>Loading...</div>;
   }
 
-  const removeTask = () => {};
+  const removeTask = async (id: string) => {
+    try {
+      await axios.delete(removeTrailingSlash(API_URL) + `/api/tasks/${id}`);
+      setTasks((prevTasks) =>
+        prevTasks.filter((task) => task.id.toString() !== id),
+      );
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
 
-  const updateTask = () => {};
+  const updateTask = async (updatedTask: Task, selectedColor: string) => {
+    try {
+      const taskWithColor = { ...updatedTask, color: selectedColor };
+      const response = await axios.put(
+        removeTrailingSlash(API_URL) + `/api/tasks/${updatedTask.id}`,
+        taskWithColor,
+      );
+
+      const updatedTasks = tasks.map((task) => {
+        if (task.id === updatedTask.id) {
+          return { ...response.data, color: selectedColor };
+        }
+        return task;
+      });
+
+      setTasks(updatedTasks);
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
 
   return (
     <>
@@ -45,7 +74,7 @@ function App() {
           </div>
         </div>
         <div className="w-[1440px] mx-auto p-24 space-y-5">
-          <div className="font-bold text-[#464646]">Favoritas</div>
+          <div className="font-normal text-[#464646]">Favoritas</div>
           <div className="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 justify-items-start">
             {favoriteTasks.map((task) => (
               <div key={task.id}>
@@ -54,7 +83,7 @@ function App() {
             ))}
           </div>
 
-          <div className="font-bold text-[#464646]">Outras</div>
+          <div className="font-normal text-[#464646]">Outras</div>
           <div className="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 justify-items-start">
             {unFavoriteTasks.map((task) => (
               <div key={task.id}>

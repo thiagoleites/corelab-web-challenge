@@ -22,27 +22,37 @@ export const Note = ({ task: initialTask, remove, update }: INote) => {
 
   const [selectedColor, setSelectedColor] = useState(color);
 
-  const updateTask = (property: string, value: any) => {
-    const updatedTask = { ...task, [property]: value };
-    setTask(updatedTask);
+  const updateTask = (updatedTask: Task) => {
+    const updatedColorTask = { ...updatedTask, color: selectedColor };
+    setTask(updatedColorTask);
   };
 
   const save = () => {
     setEdit(false);
-    axios.put(removeTrailingSlash(API_URL) + '/api/tasks/' + id, {
-      ...task,
-      color: selectedColor,
-    });
+    console.log('Task to save:', task);
+    axios
+      .put(removeTrailingSlash(API_URL) + '/api/tasks/' + id, task)
+      .then((response) => {
+        console.log('Response:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
 
   const toggleFavorite = () => {
     const updatedFavorite = !favorite;
-    updateTask('favorite', updatedFavorite);
-    update({ ...task, favorite: updatedFavorite });
-    axios.put(removeTrailingSlash(API_URL) + '/api/tasks/' + id, {
-      ...task,
-      favorite: updatedFavorite,
-    });
+    const updatedTask = { ...task, favorite: updatedFavorite };
+    updateTask(updatedTask);
+    update(updatedTask);
+    axios
+      .put(removeTrailingSlash(API_URL) + '/api/tasks/' + id, updatedTask)
+      .then((response) => {
+        console.log('Response:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
 
   const handleEdit = () => {
@@ -70,7 +80,7 @@ export const Note = ({ task: initialTask, remove, update }: INote) => {
         <input
           readOnly={!edit}
           type="text"
-          className="bg-transparent file:placeholder:font-bold"
+          className="font-bold bg-transparent file:placeholder:font-bold"
           onChange={(e) => updateTask('title', e.target.value)}
           placeholder="Título"
           value={title}
@@ -108,12 +118,6 @@ export const Note = ({ task: initialTask, remove, update }: INote) => {
             <Pencil />
           </button>
         )}
-        {/* <input
-          type="color"
-          value={selectedColor}
-          onChange={(e) => setSelectedColor(e.target.value)}
-          value={color}
-        /> */}
         <button onClick={destroy}>
           <Close />
         </button>
