@@ -3,8 +3,9 @@ import Task from '../lib/Task';
 import { Star } from './Star';
 import { removeTrailingSlash } from '../utils/util';
 import axios from 'axios';
+import API_URL from '../services/api';
 
-const COLOR = '#4F4F4D';
+const COLOR = '#FFF';
 
 interface INewNote {
   newTask: (task: Task) => void;
@@ -24,7 +25,7 @@ export const NewNote = ({ newTask }: INewNote) => {
     e.preventDefault();
 
     const response = await axios.post(
-      removeTrailingSlash(import.meta.env.API_URL) + '/api/tasks',
+      removeTrailingSlash(API_URL) + '/api/tasks',
       {
         title: title,
         description: description,
